@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>순서대로</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="./assets/css/normalize.css">
+    <style>
+        body{background: #ffd;}
+        header{display: flex; align-items: center; justify-content: space-between; background: #a2cba1; padding: 10px; margin-bottom: 10px;}
+        .logo{margin: 0; padding: 0;}
+        header button{width: 80px; padding: 10px; background: #eea; border: 0; outline: 0; border-radius: 8px;}
+        .container{width: 280px; padding: 10px; margin: 0 auto; box-sizing: border-box; display: flex; flex-direction: column; align-items: center;}
+        .guide{margin: 0; margin-bottom: 10px;}
+        .cube{display: flex; width: 240px; height: 240px; flex-wrap: wrap;}
+        .cube > div{
+            width: 80px; height: 80px; box-sizing: border-box; border: 1px solid #333;
+            display: flex; align-items: center; justify-content: center; position: relative;
+        }
+
+        .cube > div > span{
+            position: absolute; top: 0; right: 0; width: 20px; height: 20px; background: #f00; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: #eea; font-weight: 900;
+        }
+    </style>
+</head>
+
+
+<body>
+    <header>
+        <h1 class="logo">순서대로</h1>
+        <div class="btns">
+            <button onclick="orderNum.gameStart()">시작</button>
+        </div>
+    </header>
+    <div class="container">
+        <h2 id="guide" class="guide">시작버튼을 눌러주세요.</h2>
+        <div class="cube" id="cube">
+            <div onclick="orderNum.chk(this);"></div>
+            <div onclick="orderNum.chk(this);"></div>
+            <div onclick="orderNum.chk(this);"></div>
+            <div onclick="orderNum.chk(this);"></div>
+            <div onclick="orderNum.chk(this);"></div>
+            <div onclick="orderNum.chk(this);"></div>
+            <div onclick="orderNum.chk(this);"></div>
+            <div onclick="orderNum.chk(this);"></div>
+            <div onclick="orderNum.chk(this);"></div>
+        </div>
+    </div>
+
+    <script>
+        const cube = document.querySelector('#cube');
+
+        function getRandomNum(mn, mx){return Math.floor(Math.random() * (mx - mn + 1)) + mn;};
+
+        const orderNum = new OrderNum();
+
+
+        function OrderNum(){
+            const t = this;
+            t.chkIdx = 0;
+            t.cubeArr = [];
+            t.start;
+            t.end;
+
+            t.gameStart = function(){
+                if(t.start && !t.end) return;
+                //백단(시간 필수)
+
+                document.querySelector('#guide').innerHTML = '낮은 순서대로 체크!'
+                t.start = new Date().getTime();
+
+                for(let i = 0; i < 9; i++){
+                    const div = cube.querySelectorAll('div')[i];
+                    div.innerHTML = '';
+
+                    for(let j = 0; j < 6; j++) div.innerHTML += getRandomNum(1, 3);
+                }
+            }
+
+            t.chk = function(target){
+                const oldSpan = target.querySelector('span');
+
+                if(oldSpan && oldSpan.innerHTML == t.chkIdx){   //지우기
+                    oldSpan.remove();
+                    t.chkIdx--;
+                    t.cubeArr.splice(-1);
+                    return;
+                };
+
+                if(!oldSpan){
+                    const newSpan = document.createElement('span');
+                    newSpan.innerHTML = t.chkIdx++ + 1;
+                    t.cubeArr.push(target.innerHTML);
+                    target.append(newSpan);
+
+                    if(t.chkIdx === 9){
+                        if(t.cubeArr.length != 9){
+                            alert('관리자에게 문의해주세요.');
+                        }else{
+                            let isCorrect = true;
+                            for(let i = 0; i < t.cubeArr.length; i++){
+                                if(+t.cubeArr[i] > +t.cubeArr[i + 1]){
+                                    console.log('악', i);
+                                    isCorrect = false;
+                                    break;
+                                }
+                            }
+
+                            if(isCorrect){  //성공
+                                t.end = new Date().getTime();
+                                document.querySelector('#guide').innerHTML = ((t.end - t.start) / 1000) + '초'; 
+                            }else{  //실패
+                                alert('틀렸습니다.\n계속 도전해주세요.');
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+
+    </script>
+</body>
+
+</html>
